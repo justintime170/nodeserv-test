@@ -44,6 +44,7 @@ app.get('/js/*', function(request, response)
 });
 app.get('/home/*', function(request, response)
 {
+	console.log("Session user making request: " + request.session.data.user);
 	if(request.path == '/home/new_user.html')
 	{
 		if(request.session.data.user == 'admin')
@@ -86,6 +87,7 @@ app.get('/login', function(request, response)
 				else
 				{
 					var user_row = rows[0];
+					console.log('Session id: ' + request.session.id + ' Stored id: ' + user_row.login_session);
 					if(user_row.logged_in == 'true' && request.session.id == user_row.login_session)
 					{
 						request.session.data.user = request.query.username;
@@ -202,21 +204,56 @@ io.sockets.on('connection', function (socket)
 					    if(res == true)
 					    {
 					    	console.log("Login Accepted");
-					    	socket.emit('login_resp', {'login' : 'true', 'username' : data.username});
-					    	pool.getConnection(function(err, conn0)
+					    	pool.getConnection(function(err, conn9)
 					    	{
 					    		if(err) throw err;
-					    		conn0.query("UPDATE `users_login` SET `logged_in`='true', `login_session`='" + data.session + "', `login_time`='" + getDateTime() + "', `last_login`='" + getDateTime() + "' WHERE `uid`=" + new_row.uid + "", function(err, result)
+					    		conn9.query("Select * FROM `users_login` WHERE ?", {'uid' : new_row.uid}, function(err, rows)
 					    		{
 					    			if(err) throw err;
-					    			conn0.release();
-					    			if(result.affectedRows != 1)
+					    			conn9.release();
+					    			if(rows.length == 0)
 					    			{
-					    				console.log("error updating login");
+					    				pool.getConnection(function(err, conn1)
+					    				{
+					    					if(err) throw err;
+					    					conn1.query("INSERT INTO users_login SET ?", {'uid' : new_row.uid, 'logged_in' : 'true', 'login_session' : data.session, 'login_time' : getDateTime(), 'last_login' : getDateTime()}, function(err, result)
+					    					{
+					    						if(err) throw err;
+					    						conn1.release();
+					    						if(result.affectedRows == 1)
+					    						{
+					    							console.log("New users_login row added successfully");
+					    							socket.emit('login_resp', {'login' : 'true', 'username' : data.username});
+					    						}
+					    						else
+					    						{
+					    							console.log("Failed to add users login row");
+					    							socket.emit('login_resp', {'login' : 'false'});
+					    						}
+					    					});
+					    				});
 					    			}
 					    			else
 					    			{
-					    				console.log("login value set correctly");
+					    				pool.getConnection(function(err, conn0)
+										{
+											if(err) throw err;
+											conn0.query("UPDATE `users_login` SET `logged_in`='true', `login_session`='" + data.session + "', `login_time`='" + getDateTime() + "', `last_login`='" + getDateTime() + "' WHERE `uid`=" + new_row.uid + "", function(err, result)
+											{
+												if(err) throw err;
+												conn0.release();
+												if(result.affectedRows != 1)
+												{
+													console.log("error updating login");
+													socket.emit('login_resp', {'login' : 'false'});
+												}
+												else
+												{
+													console.log("login value set correctly");
+					    							socket.emit('login_resp', {'login' : 'true', 'username' : data.username});
+												}
+											});
+										});
 					    			}
 					    		});
 					    	});
