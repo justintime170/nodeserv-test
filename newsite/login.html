@@ -9,8 +9,8 @@
 	<title>Admin Login Page</title>
 	<link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.css">	
 	<link rel="stylesheet" type="text/css" href="/stylesheets/login.css">
-	<script src="js/jquery-2.1.1.min.js"></script>
-	<script src="js/socket.io.js"></script>
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/socket.io.js"></script>
 </head>
 
 <style>
@@ -44,25 +44,26 @@
 				}
 			});
 		});
+		console.log(document.cookie);
 	});
 
 	function login(id)
 	{
 		if(id == 'large')
 		{
-			socket.emit('login', {'username' : $('#exampleInputUsername_lg').val(), 'password' : $('#exampleInputPassword_lg').val()});
+			socket.emit('login', {'username' : $('#exampleInputUsername_lg').val(), 'password' : $('#exampleInputPassword_lg').val(), 'session' : get_sid()});
 		}
 		else if(id == 'med')
 		{
-			socket.emit('login', {'username' : $('#exampleInputUsername_md').val(), 'password' : $('#exampleInputPassword_md').val()});
+			socket.emit('login', {'username' : $('#exampleInputUsername_md').val(), 'password' : $('#exampleInputPassword_md').val(), 'session' : get_sid()});
 		}
 		else if(id == 'small')
 		{
-			socket.emit('login', {'username' : $('#exampleInputUsername_sm').val(), 'password' : $('#exampleInputPassword_sm').val()});
+			socket.emit('login', {'username' : $('#exampleInputUsername_sm').val(), 'password' : $('#exampleInputPassword_sm').val(), 'session' : get_sid()});
 		}
 		else if(id == 'xsmall')
 		{
-			socket.emit('login', {'username' : $('#exampleInputUsername_xs').val(), 'password' : $('#exampleInputPassword_xs').val()});
+			socket.emit('login', {'username' : $('#exampleInputUsername_xs').val(), 'password' : $('#exampleInputPassword_xs').val(), 'session' : get_sid()});
 		}
 	}
 	function complete_login(entered_username)
@@ -76,6 +77,27 @@
            login(caller);
         }
         return true;
+	}
+	function get_sid()
+	{
+		var sid = "none";
+		var cookies = document.cookie;
+		var cookie_list = cookies.split("; ");
+		for(var i = 0; i < cookie_list.length; i++)
+		{
+			var curr_cookie = cookie_list[i];
+			var curr_cookie_pair = curr_cookie.split("=");
+			if(curr_cookie_pair[0] == "SID")
+			{
+				sid = curr_cookie_pair[1];
+				return sid;
+			}
+			else if(i == (cookie_list.length-1) && sid == 'none')
+			{
+				return "none";
+			}
+		}
+
 	}
 </script>
 
