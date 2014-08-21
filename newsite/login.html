@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<title>Admin Login Page</title>
+	<link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.css">	
+	<link rel="stylesheet" type="text/css" href="/stylesheets/login.css">
+	<script src="js/jquery-2.1.1.min.js"></script>
+	<script src="js/socket.io.js"></script>
+</head>
+
+<style>
+	.status
+	{
+		margin-left: 25px; 
+		color: red;
+	}
+</style>
+
+<body>
+
+<script type="text/javascript">
+	
+	var socket;
+	$( document ).ready( function()
+	{
+		socket = io.connect('http://justindwillis.com:90/');
+		socket.on('connect', function()
+		{
+			console.log('Socket connected');
+			socket.on('login_resp', function(data)
+			{
+				if(data.login == 'true')
+				{
+					complete_login(data.username);
+				}
+				else
+				{
+					$('.status').html("Login Failed, Try Again.");
+				}
+			});
+		});
+	});
+
+	function login(id)
+	{
+		if(id == 'large')
+		{
+			socket.emit('login', {'username' : $('#exampleInputUsername_lg').val(), 'password' : $('#exampleInputPassword_lg').val()});
+		}
+		else if(id == 'med')
+		{
+			socket.emit('login', {'username' : $('#exampleInputUsername_md').val(), 'password' : $('#exampleInputPassword_md').val()});
+		}
+		else if(id == 'small')
+		{
+			socket.emit('login', {'username' : $('#exampleInputUsername_sm').val(), 'password' : $('#exampleInputPassword_sm').val()});
+		}
+		else if(id == 'xsmall')
+		{
+			socket.emit('login', {'username' : $('#exampleInputUsername_xs').val(), 'password' : $('#exampleInputPassword_xs').val()});
+		}
+	}
+	function complete_login(entered_username)
+	{
+		window.location.href = "/login?username=" + entered_username;
+	}
+	function key_event(event, caller)
+	{
+		if (event.which == 13 || event.keyCode == 13)
+		{
+           login(caller);
+        }
+        return true;
+	}
+</script>
+
+<div class="container">
+	<div class="col-md-6 col-md-offset-3 hidden-lg hidden-xs hidden-sm">
+		<div class="well">
+			<div class="form-group">
+				<label for="exampleInputUsername_md">Username</label>
+				<input type="text" class="form-control" id="exampleInputUsername_md" name="username" placeholder="Enter Username">
+			</div>
+			<div class="form-group">
+				<label for="exampleInputPassword_md">Password</label>
+				<input type="password" class="form-control" id="exampleInputPassword_md" name="password" placeholder="Password" onkeypress="return key_event(event, 'med')">
+			</div>
+			<button id='med' class="btn btn-default" onclick="login(this.id)">Submit</button>
+			<span class='status'></span>
+		</div>
+	</div>
+	<div class="col-md-6 col-md-offset-3 hidden-lg hidden-md hidden-xs">
+		<div class="well">
+			<div class="form-group">
+				<label for="exampleInputUsername_sm">Username</label>
+				<input type="text" class="form-control" id="exampleInputUsername_sm" name="username" placeholder="Enter Username">
+			</div>
+			<div class="form-group">
+				<label for="exampleInputPassword_sm">Password</label>
+				<input type="password" class="form-control" id="exampleInputPassword_sm" name="password" placeholder="Password" onkeypress="return key_event(event, 'small')">
+			</div>
+			<button id='small' class="btn btn-default" onclick="login(this.id)">Submit</button>
+			<span class='status'></span>
+		</div>
+	</div>
+	<div class="col-md-6 col-md-offset-3 hidden-lg hidden-md hidden-sm">
+		<div class="well">
+			<div class="form-group">
+				<label for="exampleInputUsername_xs">Username</label>
+				<input type="text" class="form-control" id="exampleInputUsername_xs" name="username" placeholder="Enter Username">
+			</div>
+			<div class="form-group">
+				<label for="exampleInputPassword_xs">Password</label>
+				<input type="password" class="form-control" id="exampleInputPassword_xs" name="password" placeholder="Password" onkeypress="return key_event(event, 'xsmall')">
+			</div>
+			<button id='xsmall' class="btn btn-default" onclick="login(this.id)">Submit</button>
+			<span class='status'></span>
+		</div>
+	</div>
+	<div class="col-md-6 col-md-offset-3 hidden-xs hidden-md hidden-sm">
+		<div class="well">
+			<div class="form-group">
+				<label for="exampleInputUsername_lg">Username</label>
+				<input type="text" class="form-control" id="exampleInputUsername_lg" name="username" placeholder="Enter Username">
+			</div>
+			<div class="form-group">
+				<label for="exampleInputPassword_lg">Password</label>
+				<input type="password" class="form-control" id="exampleInputPassword_lg" name="password" placeholder="Password" onkeypress="return key_event(event, 'large')">
+			</div>
+			<button id='large' class="btn btn-default" onclick="login(this.id)">Submit</button>
+			<span class='status'></span>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<title>Add New User</title>
+	<link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.css">	
+	<script src="/js/jquery-2.1.1.min.js"></script>
+	<script src="/js/socket.io.js"></script>
+</head>
+
+<style >
+	html
+	{
+		background-color: black;
+	}
+	.container-full
+	{
+		position: absolute;
+		top: 20%;
+		left: 50%;
+		margin-left: -150px;
+	}
+	.user-fields
+	{
+		width: 300px;
+		height: 300px;
+	}
+	.status
+	{
+		margin-left: 25px; 
+		color: red;
+	}
+</style>
+
+<body>
+
+<script type="text/javascript">
+	var socket;
+	$(document).ready(function()
+	{
+		socket = io.connect('http://justindwillis.com:90/');
+		socket.on('connect', function()
+		{
+			console.log('Socket connected');
+			socket.on('create_resp', function(data)
+			{
+				if(data.created == 'true')
+				{
+					$('#username').val('');
+					$('#password').val('');
+					$('#password-conf').val('');
+					window.location.href = '/home/home.html';
+				}
+				else
+				{
+					$('#username').val('');
+					$('#password').val('');
+					$('#password-conf').val('');
+					$('.status').html("User Creation Failed");
+					setTimeout(function()
+					{
+						$('.status').html("");
+					}, 2500);
+				}
+			});
+		});
+	});
+	function submit(id)
+	{
+		if($('#password').val() == $('#password-conf').val())
+		{
+			if($('#password').val().length < 8)
+			{
+				$('.status').html("Password is too short");
+				setTimeout(function()
+				{
+					$('.status').html("");
+				}, 2500);
+			}
+			else
+			{
+				socket.emit('add_user', {'username' : $('#username').val(), 'password' : $('#password').val()});
+			}
+		}
+		else
+		{
+			$('.status').html("Passwords do not match");
+			setTimeout(function()
+			{
+				$('.status').html("");
+			}, 2500);
+		}
+	}
+	function key_event(event)
+	{
+		if (event.which == 13 || event.keyCode == 13)
+		{
+           submit(1);
+        }
+        return true;
+	}
+</script>
+
+
+<div class="container-full">
+	<div class="well user-fields">
+		<div class="form-group">
+			<label for="username">Username</label>
+			<input type="text" class="form-control username-field" id="username" name="username" placeholder="Enter Username">
+		</div>
+		<div class="form-group">
+			<label for="password">Password</label>
+			<input type="password" class="form-control password-field" id="password" name="password" placeholder="Password" onkeypress="return key_event(event)">
+		</div>
+		<div class="form-group">
+			<label for="password-conf">Password</label>
+			<input type="password" class="form-control password-conf-field" id="password-conf" name="password-conf" placeholder="Confirm Password" onkeypress="return key_event(event)">
+		</div>
+		<button class="btn btn-default" id='submit-button' onclick="submit(this.id)">Submit</button>
+		<span class='status'></span>
+	</div>
+</div>
+
+</body>
+</html>

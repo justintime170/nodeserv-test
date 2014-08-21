@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test Click Page</title>
+	<script src="/js/socket.io.js"></script>
+</head>
+<body>
+<script>
+	var socket = io.connect('http://justindwillis.com/');
+	socket.on('connect', function()
+	{
+		document.getElementById("head1").innerHTML = ("Connected!");
+		socket.on('event', function(data){});
+		socket.on('disconnect', function(){});
+		socket.on('ack', function(data)
+		{
+			document.getElementById("head1").innerHTML = ("New message: " + data.message + " for " + data.bid);
+		});
+	});
+</script>
+<div class="header" id="head1">
+	<h1>No Messages Recieved</h1>
+</div>
+<div class="test_button">
+	<button id="b1" onclick="button_click(this.id)">Test Button 1</button>
+</div>
+<div class="test_button">
+	<button id="b2" onclick="button_click(this.id)">Test Button 2</button>
+</div>
+<div id='messages'>
+	<h2>No messages yet</h2>
+</div>
+
+<script>
+	function button_click(div_id)
+	{
+		if(div_id == 'b1')
+		{
+			socket.emit('button',{'button_id' : div_id});
+			document.getElementById("messages").innerHTML = ("Button 1 Pressed");
+			//document.write("Button 1 Clicked");
+		}
+		if(div_id == 'b2')
+		{
+			socket.emit('button',{'button_id' : div_id});
+			document.getElementById("messages").innerHTML = ("Button 2 Pressed");
+			//document.write("<h1>Button 2 Clicked</h1>");
+		}
+	}
+</script>
+
+</body>
+</html>
