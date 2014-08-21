@@ -27,7 +27,16 @@
 	
 	var socket;
 	$( document ).ready( function()
-	{
+	{		
+		if(window.location.search.length > 0)
+		{
+			var request = window.location.search.split("?");
+			var req_parts = request[1].split("=");
+			if(req_parts[0] == 'resetc')
+			{
+				reset_cookie();
+			}
+		}
 		socket = io.connect('http://justindwillis.com:90/');
 		socket.on('connect', function()
 		{
@@ -44,7 +53,6 @@
 				}
 			});
 		});
-		console.log(document.cookie);
 	});
 
 	function login(id)
@@ -97,7 +105,11 @@
 				return "none";
 			}
 		}
-
+	}
+	function reset_cookie()
+	{
+		document.cookie = "SID=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+		window.location.href = '/';
 	}
 </script>
 
